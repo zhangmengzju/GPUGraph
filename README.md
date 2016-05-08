@@ -1,1 +1,1 @@
-# GPUGraph
+# MyProject
