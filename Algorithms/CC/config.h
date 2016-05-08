@@ -18,7 +18,7 @@ AFRL Contract #FA8750-13-C-0002.
 
 This material is based upon work supported by the Defense Advanced
 Research Projects Agency (DARPA) under Contract No. D14PC00029.
- */
+*/
 
 #pragma once
 
@@ -55,7 +55,7 @@ class Parameter {
 class ParameterDescription {
   public:
     ParameterDescription() : type(0) {}
-    ParameterDescription(const ParameterDescription &p) : type(p.type), name(p.name), description(p.description), default_value(p.default_value) {}
+    ParameterDescription(const ParameterDescription &p) : type(p.type), name(p.name), description(p.description), default_value(default_value) {}
     ParameterDescription(const std::type_info *type, const std::string &name, const std::string &description, const Parameter& default_value) : type(type), name(name), description(description), default_value(default_value) {}
     const std::type_info *type;   //the type of the parameter
     std::string name;             //the name of the parameter
@@ -86,7 +86,7 @@ class Config {
     	  ParamDesc::iterator desc_iter=param_desc.find(name);
     	  if(desc_iter==param_desc.end()) {
     	    std::cout << "getParameter error: '" << name << "' not found\n";
-    	    throw std::exception();
+    	    throw;
     	  }
 
 //    	  std::cout << "string type: "; //<< typeid(std::string).name() << std::endl;
@@ -97,7 +97,7 @@ class Config {
     		  std::cout << desc_iter->second.type->name() << std::endl;
     		  			std::cout << typeid(Type).name() << std::endl;
     	    std::cout << "getParameter error: '" << name << "' type miss match\n";
-    	    throw std::exception();
+    	    throw;
     	  }
 
     	  //check if the paramter has been set
@@ -120,11 +120,11 @@ class Config {
     	  ParamDesc::iterator iter=param_desc.find(name);
     	  if(iter==param_desc.end()) {
     	    std::cout << "setParameter error: '" << name << "' not found\n";
-    	    throw std::exception();
+    	    throw;
     	  }
     	  if(iter->second.type!=&typeid(Type)) {
     	    std::cout << "setParameter error: '" << name << "' type miss match\n";
-    	    throw std::exception();
+    	    throw;
     	  }
     	  params[name]=value;
     }

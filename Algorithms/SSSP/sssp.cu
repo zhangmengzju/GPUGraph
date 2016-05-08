@@ -18,7 +18,7 @@ AFRL Contract #FA8750-13-C-0002.
 
 This material is based upon work supported by the Defense Advanced
 Research Projects Agency (DARPA) under Contract No. D14PC00029.
- */
+*/
 
 typedef unsigned int uint;
 #include <stdio.h> 
@@ -31,7 +31,7 @@ typedef unsigned int uint;
 #include <vector>
 #include <sssp.h>
 #include <iostream>
-#include <time.h>
+#include <omp.h>
 
 #include <config.h>
 
@@ -105,10 +105,10 @@ void cudaInit(int device)
   }
 }
 
-bool correctTest(int nodes, sssp::DataType* reference_dists, sssp::DataType* h_dists)
+void correctTest(int nodes, int* reference_dists, int* h_dists)
 {
   bool pass = true;
-  printf("Correctness testing ...");fflush(stdout);
+  printf("Correctness testing ...");
   for (int i = 0; i < nodes; i++)
   {
     if (reference_dists[i] != h_dists[i])
@@ -121,19 +121,15 @@ bool correctTest(int nodes, sssp::DataType* reference_dists, sssp::DataType* h_d
     printf("passed\n");
   else
     printf("failed\n");
-  return pass;
 }
 
-// FIXME CPUSSSP() ignores [directed]. Hence cross validation of the CPU and GPU
-// is only correct when the graph is treated as directed.
 template<typename VertexId, typename Value, typename SizeT>
-void CPUSSSP(const bool directed, CsrGraph<VertexId, Value, SizeT> const &graph, Value* dist, VertexId src)
+void CPUSSSP(CsrGraph<VertexId, Value, SizeT> const &graph, VertexId* dist, VertexId src)
 {
 
 // initialize dist[] and pred[] arrays. Start with vertex s by setting
 // dist[] to 0.
 
-  printf("Running CPU code...");fflush(stdout);
   const int n = graph.nodes;
   for (int i = 0; i < n; i++)
     dist[i] = 100000000;
@@ -143,12 +139,12 @@ void CPUSSSP(const bool directed, CsrGraph<VertexId, Value, SizeT> const &graph,
 // find vertex in ever-shrinking set, V-S, whose dist value is smallest
 // Recompute potential new paths to update all shortest paths
 
-  const time_t startTime = time(NULL);
+  double startTime = omp_get_wtime();
   while (true)
   {
 // find shortest distance so far in unvisited vertices
     int u = -1;
-    Value sd = sssp::INIT_VALUE; // assume not reachable
+    int sd = 100000000; // assume not reachable
 
     for (int i = 0; i < n; i++)
     {
@@ -165,36 +161,24 @@ void CPUSSSP(const bool directed, CsrGraph<VertexId, Value, SizeT> const &graph,
 
 // For neighbors of u, see if length of best path from s->u + weight
 // of edge u->v is better than best path from s->v.
-	visited[u] = true;
-	{ // forward
-		for (int j = graph.row_offsets[u]; j < graph.row_offsets[u + 1];
-				++j) {
-			int v = graph.column_indices[j]; // the neighbor v
-			long newLen = dist[u]; // compute as long
-			newLen += graph.edge_values[j]; // sum with (u,v) weight
+    visited[u] = true;
 
-			if (newLen < dist[v]) {
-				dist[v] = newLen;
-			}
-		}
-	}
-	if (!directed) { // reverse
-		for (int j = graph.column_offsets[u]; j < graph.column_offsets[u + 1];
-				++j) {
-			int v = graph.row_indices[j]; // the neighbor v
-			long newLen = dist[u]; // compute as long
-			newLen += graph.edge_values[j]; // sum with (u,v) weight
+    for (int j = graph.row_offsets[u]; j < graph.row_offsets[u + 1]; ++j)
+    {
+      int v = graph.column_indices[j]; // the neighbor v
+      long newLen = dist[u]; // compute as long
+      newLen += graph.edge_values[j]; // sum with (u,v) weight
 
-			if (newLen < dist[v]) {
-				dist[v] = newLen;
-			}
-		}
-	}
+      if (newLen < dist[v])
+      {
+        dist[v] = newLen;
+      }
+    }
   }
 
-  const time_t EndTime = time(NULL);
+  double EndTime = omp_get_wtime();
 
-  std::cout << "CPU time took: " << difftime(EndTime, startTime) * 1000 << " ms"
+  std::cout << "CPU time took: " << (EndTime - startTime) * 1000 << " ms"
       << std::endl;
 }
 
@@ -225,9 +209,9 @@ int main(int argc, char **argv)
   const bool g_with_value = true;
   const bool g_mark_predecessor = false;
   bool g_verbose = false;
-  typedef sssp::VertexId VertexId; // Use as the node identifier type
-  typedef sssp::DataType Value; // Use as the value type
-  typedef typename sssp::SizeT SizeT; // Use as the graph size type
+  typedef int VertexId; // Use as the node identifier type
+  typedef int Value; // Use as the value type
+  typedef typename sssp::DataType SizeT; // Use as the graph size type
   char* graph_file = NULL;
   CsrGraph<VertexId, Value, SizeT> csr_graph(g_stream_from_host);
   char source_file_name[1000] = "";
@@ -286,10 +270,9 @@ int main(int argc, char **argv)
     exit(1);
   }
 
-  char hostname[1024] = "localhost";
-#ifdef gethostname
+  char hostname[1024];
+  hostname[1023] = '\0';
   gethostname(hostname, 1023);
-#endif
 
   printf("Running on host: %s\n", hostname);
 
@@ -365,25 +348,18 @@ int main(int argc, char **argv)
     printf("Single source vertex: %d\n", srcs[0]);
   }
 
-  {
-	  const int stats = cfg.getParameter<int>("stats");
-	  if(stats) {
-		  csr_graph.PrintHistogram();
-	  }
-  }
-
   int run_CPU = cfg.getParameter<int>("run_CPU");
 
-  sssp::DataType* reference_dists;
+  VertexId* reference_dists;
   if (strcmp(source_file_name, "") == 0 && run_CPU) //Do correctness test only with single starting vertex
   {
-    reference_dists = (sssp::DataType*) malloc(sizeof(sssp::DataType) * csr_graph.nodes);
+    reference_dists = (VertexId*) malloc(sizeof(VertexId) * csr_graph.nodes);
     int src = cfg.getParameter<int>("src");
 
     if (origin == 1)
       src--;
 
-    CPUSSSP(directed,
+    CPUSSSP(
         csr_graph,
         reference_dists,
         src);
@@ -421,10 +397,10 @@ int main(int argc, char **argv)
     retval = vertex_centric.EnactIterativeSearch(csr_problem,
         csr_graph.row_offsets, directed, 1, tmpsrcs, iter_num, threshold);
 
-//    if (retval && (retval != cudaErrorInvalidDeviceFunction))
-//    {
-//      exit(1);
-//    }
+    if (retval && (retval != cudaErrorInvalidDeviceFunction))
+    {
+      exit(1);
+    }
   }
 
   Value* h_values = (Value*) malloc(sizeof(Value) * csr_graph.nodes);
@@ -432,12 +408,8 @@ int main(int argc, char **argv)
 
   if (strcmp(source_file_name, "") == 0 && run_CPU)
   {
-	const bool ok = correctTest(csr_graph.nodes, reference_dists, h_values);
+    correctTest(csr_graph.nodes, reference_dists, h_values);
     free(reference_dists);
-	if (!ok) {
-		fprintf(stderr, "correctness test failed.");
-		exit(1);
-	}
   }
 
   if (outFileName)
@@ -445,7 +417,7 @@ int main(int argc, char **argv)
     FILE* f = fopen(outFileName, "w");
     for (int i = 0; i < csr_graph.nodes; ++i)
     {
-      fprintf(f, "%lld\n", (long long) h_values[i]);
+      fprintf(f, "%d\n", h_values[i]);
     }
 
     fclose(f);

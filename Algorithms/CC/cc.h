@@ -18,7 +18,7 @@ AFRL Contract #FA8750-13-C-0002.
 
 This material is based upon work supported by the Defense Advanced
 Research Projects Agency (DARPA) under Contract No. D14PC00029.
- */
+*/
 
 #ifndef CC_H_
 #define CC_H_
@@ -38,7 +38,7 @@ struct cc
   typedef int VertexId;
   typedef int SizeT;
 
-  static const int INIT_VALUE = INT_MAX;//100000000;
+  static const int INIT_VALUE = 100000000;
   static const bool allow_duplicates = true;
 
   struct VertexType
@@ -52,7 +52,6 @@ struct cc
         d_dists(NULL), d_dists_out(NULL), nodes(0), edges(0)
     {
     }
-    virtual void Deallocate(){}
   };
 
   struct EdgeType
@@ -64,7 +63,6 @@ struct cc
         nodes(0), edges(0)
     {
     }
-    virtual void Deallocate(){}
   };
 
   static SrcVertex srcVertex()

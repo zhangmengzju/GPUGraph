@@ -1,0 +1,182 @@
+nvcc --compiler-bindir /home/zhisong.fzs/openmpi-1.8.4-build/bin/mpicc -c -o BFS.o bfs.cu -O3 -lineinfo -Xcompiler -fopenmp -I. -I../../ -I../../moderngpu2/include -I/opt/mvapich2/gdr/2.0/gnu/include -L/usr/lib/ -L../../moderngpu2 -L../../MPI/generator -gencode=arch=compute_20,code=\"sm_20,compute_20\"  -gencode=arch=compute_30,code=\"sm_30,compute_30\"  -gencode=arch=compute_35,code=\"sm_35,compute_35\"   
+./bfs.h(259): warning: variable "is_visited" was declared but never referenced
+
+../../BitmapCompressor/kernels.cuh(394): warning: variable "tid" was declared but never referenced
+
+../../BitmapCompressor/kernels.cuh(463): warning: missing return statement at end of non-void function "storeWords"
+
+../../BitmapCompressor/kernels.cuh(482): warning: integer conversion resulted in a change of sign
+
+../../BitmapCompressor/kernels.cuh(490): warning: integer conversion resulted in a change of sign
+
+../../BitmapCompressor/kernels.cuh(500): warning: integer conversion resulted in a change of sign
+
+../../MPI/wave.h(340): warning: variable "request" was declared but never referenced
+
+../../MPI/wave.h(500): warning: variable "word_size" was declared but never referenced
+
+../../MPI/wave.h(444): warning: variable "request" was declared but never referenced
+
+../../MPI/wave.h(604): warning: variable "myid" was declared but never referenced
+
+../../MPI/wave.h(898): warning: variable "rank_id" was declared but never referenced
+
+bfs.cu(363): warning: variable "outFileName" was set but never used
+
+bfs.cu(381): warning: variable "numEdges" was set but never used
+
+../../GASengine/enactor_vertex_centric.cuh(4027): warning: variable "dummy_frontier_size" was declared but never referenced
+
+../../GASengine/enactor_vertex_centric.cuh(4653): warning: variable "global_size" was declared but never referenced
+
+./bfs.h(259): warning: variable "is_visited" was declared but never referenced
+
+../../BitmapCompressor/kernels.cuh(394): warning: variable "tid" was declared but never referenced
+
+../../BitmapCompressor/kernels.cuh(463): warning: missing return statement at end of non-void function "storeWords"
+
+../../BitmapCompressor/kernels.cuh(482): warning: integer conversion resulted in a change of sign
+
+../../BitmapCompressor/kernels.cuh(490): warning: integer conversion resulted in a change of sign
+
+../../BitmapCompressor/kernels.cuh(500): warning: integer conversion resulted in a change of sign
+
+../../MPI/wave.h(340): warning: variable "request" was declared but never referenced
+
+../../MPI/wave.h(500): warning: variable "word_size" was declared but never referenced
+
+../../MPI/wave.h(444): warning: variable "request" was declared but never referenced
+
+../../MPI/wave.h(604): warning: variable "myid" was declared but never referenced
+
+../../MPI/wave.h(898): warning: variable "rank_id" was declared but never referenced
+
+bfs.cu(363): warning: variable "outFileName" was set but never used
+
+bfs.cu(381): warning: variable "numEdges" was set but never used
+
+../../GASengine/enactor_vertex_centric.cuh(4027): warning: variable "dummy_frontier_size" was declared but never referenced
+
+../../GASengine/enactor_vertex_centric.cuh(4653): warning: variable "global_size" was declared but never referenced
+
+./bfs.h(259): warning: variable "is_visited" was declared but never referenced
+
+../../BitmapCompressor/kernels.cuh(394): warning: variable "tid" was declared but never referenced
+
+../../BitmapCompressor/kernels.cuh(463): warning: missing return statement at end of non-void function "storeWords"
+
+../../BitmapCompressor/kernels.cuh(482): warning: integer conversion resulted in a change of sign
+
+../../BitmapCompressor/kernels.cuh(490): warning: integer conversion resulted in a change of sign
+
+../../BitmapCompressor/kernels.cuh(500): warning: integer conversion resulted in a change of sign
+
+../../MPI/wave.h(340): warning: variable "request" was declared but never referenced
+
+../../MPI/wave.h(500): warning: variable "word_size" was declared but never referenced
+
+../../MPI/wave.h(444): warning: variable "request" was declared but never referenced
+
+../../MPI/wave.h(604): warning: variable "myid" was declared but never referenced
+
+../../MPI/wave.h(898): warning: variable "rank_id" was declared but never referenced
+
+bfs.cu(363): warning: variable "outFileName" was set but never used
+
+bfs.cu(381): warning: variable "numEdges" was set but never used
+
+../../GASengine/enactor_vertex_centric.cuh(4027): warning: variable "dummy_frontier_size" was declared but never referenced
+
+../../GASengine/enactor_vertex_centric.cuh(4653): warning: variable "global_size" was declared but never referenced
+
+./bfs.h(259): warning: variable "is_visited" was declared but never referenced
+
+../../BitmapCompressor/kernels.cuh(394): warning: variable "tid" was declared but never referenced
+
+../../BitmapCompressor/kernels.cuh(463): warning: missing return statement at end of non-void function "storeWords"
+
+../../BitmapCompressor/kernels.cuh(482): warning: integer conversion resulted in a change of sign
+
+../../BitmapCompressor/kernels.cuh(490): warning: integer conversion resulted in a change of sign
+
+../../BitmapCompressor/kernels.cuh(500): warning: integer conversion resulted in a change of sign
+
+../../MPI/wave.h(340): warning: variable "request" was declared but never referenced
+
+../../MPI/wave.h(500): warning: variable "word_size" was declared but never referenced
+
+../../MPI/wave.h(444): warning: variable "request" was declared but never referenced
+
+../../MPI/wave.h(604): warning: variable "myid" was declared but never referenced
+
+../../MPI/wave.h(898): warning: variable "rank_id" was declared but never referenced
+
+../../GASengine/enactor_vertex_centric.cuh(4027): warning: variable "dummy_frontier_size" was declared but never referenced
+
+../../GASengine/enactor_vertex_centric.cuh(4653): warning: variable "global_size" was declared but never referenced
+
+bfs.cu(363): warning: variable "outFileName" was set but never used
+
+bfs.cu(381): warning: variable "numEdges" was set but never used
+
+./bfs.h(259): warning: variable "is_visited" was declared but never referenced
+
+../../BitmapCompressor/kernels.cuh(394): warning: variable "tid" was declared but never referenced
+
+../../BitmapCompressor/kernels.cuh(463): warning: missing return statement at end of non-void function "storeWords"
+
+../../BitmapCompressor/kernels.cuh(482): warning: integer conversion resulted in a change of sign
+
+../../BitmapCompressor/kernels.cuh(490): warning: integer conversion resulted in a change of sign
+
+../../BitmapCompressor/kernels.cuh(500): warning: integer conversion resulted in a change of sign
+
+../../MPI/wave.h(340): warning: variable "request" was declared but never referenced
+
+../../MPI/wave.h(500): warning: variable "word_size" was declared but never referenced
+
+../../MPI/wave.h(444): warning: variable "request" was declared but never referenced
+
+../../MPI/wave.h(604): warning: variable "myid" was declared but never referenced
+
+../../MPI/wave.h(898): warning: variable "rank_id" was declared but never referenced
+
+../../GASengine/enactor_vertex_centric.cuh(4027): warning: variable "dummy_frontier_size" was declared but never referenced
+
+../../GASengine/enactor_vertex_centric.cuh(4653): warning: variable "global_size" was declared but never referenced
+
+bfs.cu(363): warning: variable "outFileName" was set but never used
+
+bfs.cu(381): warning: variable "numEdges" was set but never used
+
+./bfs.h(259): warning: variable "is_visited" was declared but never referenced
+
+../../BitmapCompressor/kernels.cuh(394): warning: variable "tid" was declared but never referenced
+
+../../BitmapCompressor/kernels.cuh(463): warning: missing return statement at end of non-void function "storeWords"
+
+../../BitmapCompressor/kernels.cuh(482): warning: integer conversion resulted in a change of sign
+
+../../BitmapCompressor/kernels.cuh(490): warning: integer conversion resulted in a change of sign
+
+../../BitmapCompressor/kernels.cuh(500): warning: integer conversion resulted in a change of sign
+
+../../MPI/wave.h(340): warning: variable "request" was declared but never referenced
+
+../../MPI/wave.h(500): warning: variable "word_size" was declared but never referenced
+
+../../MPI/wave.h(444): warning: variable "request" was declared but never referenced
+
+../../MPI/wave.h(604): warning: variable "myid" was declared but never referenced
+
+../../MPI/wave.h(898): warning: variable "rank_id" was declared but never referenced
+
+../../GASengine/enactor_vertex_centric.cuh(4027): warning: variable "dummy_frontier_size" was declared but never referenced
+
+../../GASengine/enactor_vertex_centric.cuh(4653): warning: variable "global_size" was declared but never referenced
+
+bfs.cu(363): warning: variable "outFileName" was set but never used
+
+bfs.cu(381): warning: variable "numEdges" was set but never used
+
+nvcc --compiler-bindir /home/zhisong.fzs/openmpi-1.8.4-build/bin/mpicc -o BFS BFS.o config.o -L/usr/lib/ -L../../moderngpu2 -L../../MPI/generator -lgomp -lmgpu -lstdc++ -lgen 

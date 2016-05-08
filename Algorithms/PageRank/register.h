@@ -18,7 +18,7 @@ AFRL Contract #FA8750-13-C-0002.
 
 This material is based upon work supported by the Defense Advanced
 Research Projects Agency (DARPA) under Contract No. D14PC00029.
- */
+*/
 
 #include <config.h>
 #include <climits>
@@ -38,5 +38,4 @@ inline void registerParameters() {
 //  Config::registerParameter<int>("with_value","Whether to load edge values from market file (default 0)", 0); // the device number
   Config::registerParameter<double>("max_queue_sizing","The frontier queue size is this value times the number of vertices in the graph (default 1.5)", 1.5); //frontier queue size
   Config::registerParameter<int>("threshold","When frontier size is larger than threshold, two-phase strategy is used otherwise dynamic scheduling it used (default 1000)", 1000);
-  Config::registerParameter<int>("stats","Print out degree histogram (default 0)", 0);
 }

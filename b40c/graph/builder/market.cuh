@@ -113,10 +113,9 @@ int ReadMarketStream(
 			}
 
 			long long ll_row, ll_col;
-			double edge_value = 1; // assume unless overridden by data from the edge.
-			int nread = sscanf(line, "%lld %lld %lf", &ll_row, &ll_col, &edge_value);
-			if (nread != 2 && nread != 3) {
-				fprintf(stderr, "Error parsing MARKET graph: badly formed edge: edges_read=%lld\n", (long long)edges_read);
+			double edge_value;
+			if (sscanf(line, "%lld %lld %lf", &ll_row, &ll_col, &edge_value) != 3) {
+				fprintf(stderr, "Error parsing MARKET graph: badly formed edge\n", edges);
 				if (coo) free(coo);
 				return -1;
 			}

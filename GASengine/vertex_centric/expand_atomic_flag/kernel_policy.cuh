@@ -20,7 +20,7 @@
  ******************************************************************************/
 
 /*THIS FILE HAS BEEN MODIFIED FROM THE ORIGINAL*/
-				
+
 /**
 Copyright 2013-2014 SYSTAP, LLC.  http://www.systap.com
 
@@ -42,11 +42,6 @@ AFRL Contract #FA8750-13-C-0002.
 This material is based upon work supported by the Defense Advanced
 Research Projects Agency (DARPA) under Contract No. D14PC00029.
 */
-
-/******************************************************************************
- * Kernel configuration policy for frontier expansion kernels.
- ******************************************************************************/
-
 #pragma once
 
 #include <b40c/util/basic_utils.cuh>

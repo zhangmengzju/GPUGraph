@@ -18,8 +18,7 @@ AFRL Contract #FA8750-13-C-0002.
 
 This material is based upon work supported by the Defense Advanced
 Research Projects Agency (DARPA) under Contract No. D14PC00029.
- */
-
+*/
 typedef unsigned int uint;
 #include <stdio.h>
 #include <cstdlib>
@@ -29,10 +28,9 @@ typedef unsigned int uint;
 #include <string>
 #include <deque>
 #include <vector>
-#include <set>
 #include <cc.h>
 #include <iostream>
-#include <time.h>
+#include <omp.h>
 
 #include <config.h>
 
@@ -108,17 +106,15 @@ void cudaInit(int device)
   }
 }
 
-bool correctTest(const int nodes, const cc::DataType* reference_dists, const cc::DataType* h_dists)
+void correctTest(int nodes, int* reference_dists, int* h_dists)
 {
   bool pass = true;
-  int nerr = 0;
-  printf("Correctness testing ...");fflush(stdout);
+  printf("Correctness testing ...");
   for (int i = 0; i < nodes; i++)
   {
     if (reference_dists[i] != h_dists[i])
     {
-		if (nerr++ < 20)
-    		printf("Incorrect value for node %d: CPU value %d, GPU value %d\n", i, reference_dists[i], h_dists[i]);
+//      printf("Incorrect value for node %d: CPU value %d, GPU value %d\n", i, reference_dists[i], h_dists[i]);
       pass = false;
     }
   }
@@ -126,7 +122,6 @@ bool correctTest(const int nodes, const cc::DataType* reference_dists, const cc:
     printf("passed\n");
   else
     printf("failed\n");
-  return pass;
 }
 
 template<typename VertexId, typename Value, typename SizeT>
@@ -135,66 +130,41 @@ void CPUCC(CsrGraph<VertexId, Value, SizeT> const &graph, Value* dist)
 
 // initialize dist[] and pred[] arrays. Start with vertex s by setting
 // dist[] to 0.
-//	  printf("sizeof(int)=%lld\n",(long long)sizeof(int));
-//	  printf("INIT_VALUE=%lld\n",(long long)cc::INIT_VALUE);
-  printf("Running CPU code ... ");fflush(stdout);
+
+  printf("Running CPU CC ... ");
   const SizeT n = graph.nodes;
   for (int i = 0; i < n; i++)
-    dist[i] = i; // assign distinct label to each node.
+    dist[i] = i;
 
   bool changed = true;
 
 // find vertex in ever-shrinking set, V-S, whose dist value is smallest
 // Recompute potential new paths to update all shortest paths
 
-	const time_t startTime = time(NULL);
-	while (changed) {
-		changed = false;
-		{ // forward
-			for (int v = 0; v < n; v++) {
-				Value minnb = cc::INIT_VALUE;
-				for (int j = graph.row_offsets[v]; j < graph.row_offsets[v + 1];
-						j++) {
-					const VertexId nb = graph.column_indices[j]; // the neighbor v
-					minnb = min(minnb, dist[nb]);
-				}
-				if (minnb < dist[v]) {
-					dist[v] = minnb;
-					changed = true;
-				}
-			}
-		}
-		{ // reverse
-			for (int v = 0; v < n; v++) {
-				Value minnb = cc::INIT_VALUE;
-				for (int j = graph.column_offsets[v];
-						j < graph.column_offsets[v + 1]; j++) {
-					const VertexId nb = graph.row_indices[j]; // the neighbor v
-					minnb = min(minnb, dist[nb]);
-				}
-				if (minnb < dist[v]) {
-					dist[v] = minnb;
-					changed = true;
-				}
-			}
-		}
-	}
-
-  // report the #of connected components as computed by the CPU.
-  { // Note: std::set is an insertion sort.
-		std::set<VertexId> distinctSet;
-		for (int v = 0; v < n; v++) {
-			distinctSet.insert(dist[v]);
-		}
-
-		printf("done! (%lld connected components).\n",
-				(long long) distinctSet.size());
+  double startTime = omp_get_wtime();
+  while (changed)
+  {
+    changed = false;
+    for (int v = 0; v < n; v++)
+    {
+      Value minnb = 100000000;
+      for (int j = graph.row_offsets[v]; j < graph.row_offsets[v + 1]; ++j)
+      {
+        VertexId nb = graph.column_indices[j]; // the neighbor v
+        minnb = min(minnb, dist[nb]);
+      }
+      if (minnb < dist[v])
+      {
+        dist[v] = minnb;
+        changed = true;
+      }
+    }
   }
 
-  fflush(stdout);
-  const time_t EndTime = time(NULL);
+  printf("done!\n");
+  double EndTime = omp_get_wtime();
 
-  std::cout << "CPU time took: " << difftime(EndTime, startTime) * 1000 << " ms"
+  std::cout << "CPU time took: " << (EndTime - startTime) * 1000 << " ms"
       << std::endl;
 }
 
@@ -206,7 +176,7 @@ void printUsageAndExit(char* algo_name)
   std::cout << "     -help display the command options\n";
   std::cout << "     -graph specify a sparse matrix in Matrix Market (.mtx) format\n";
   std::cout << "     -output or -o specify file for output result\n";
-  std::cout << "     -c set the CC options from the configuration file\n";
+  std::cout << "     -c set the SSSP options from the configuration file\n";
   std::cout
       << "     -parameters (-p) set the options.  Options include the following:\n";
   Config::printOptions();
@@ -266,7 +236,7 @@ int main(int argc, char **argv)
       cfg.parseParameterString(argv[i]);
     }
     else if (strncmp(argv[i], "-c", 100) == 0)
-    { //use a configuration file to specify the CC options instead of command line
+    { //use a configuration file to specify the SSSP options instead of command line
       i++;
       cfg.parseFile(argv[i]);
     }
@@ -278,10 +248,9 @@ int main(int argc, char **argv)
     exit(0);
   }
 
-  char hostname[1024] = "localhost";
-#ifdef gethostname
+  char hostname[1024];
+  hostname[1023] = '\0';
   gethostname(hostname, 1023);
-#endif
 
   printf("Running on host: %s\n", hostname);
 
@@ -291,13 +260,6 @@ int main(int argc, char **argv)
   if (builder::BuildMarketGraph<g_with_value>(graph_file, csr_graph,
       false) != 0)
     return 1;
-
-  {
-	  const int stats = cfg.getParameter<int>("stats");
-	  if(stats) {
-		  csr_graph.PrintHistogram();
-	  }
-  }
 
   VertexId* reference_dists;
   int run_CPU = cfg.getParameter<int>("run_CPU");
@@ -337,23 +299,10 @@ int main(int argc, char **argv)
   Value* h_values = (Value*) malloc(sizeof(Value) * csr_graph.nodes);
   csr_problem.ExtractResults(h_values);
 
-  // report #of connected components as computed by the GPU.
-  {
-  thrust::device_ptr<int> dist_ptr = thrust::device_pointer_cast(csr_problem.graph_slices[0]->vertex_list.d_dists);
-  thrust::sort(dist_ptr, dist_ptr + csr_graph.nodes);
-  thrust::device_ptr<int> new_end = thrust::unique(dist_ptr, dist_ptr + csr_graph.nodes);
-  const int num_comp = (int) (new_end - dist_ptr);
-  printf("Number of components is: %d\n", num_comp);
-  }
-
   if (run_CPU)
   {
-    const bool ok = correctTest(csr_graph.nodes, reference_dists, h_values);
+    correctTest(csr_graph.nodes, reference_dists, h_values);
     free(reference_dists);
-	if (!ok) {
-		fprintf(stderr, "correctness test failed.");
-		exit(1);
-	}
   }
 
   if (outFileName)
@@ -366,6 +315,12 @@ int main(int argc, char **argv)
 
     fclose(f);
   }
+
+  thrust::device_ptr<int> dist_ptr = thrust::device_pointer_cast(csr_problem.graph_slices[0]->vertex_list.d_dists);
+  thrust::sort(dist_ptr, dist_ptr + csr_graph.nodes);
+  thrust::device_ptr<int> new_end = thrust::unique(dist_ptr, dist_ptr + csr_graph.nodes);
+  int num_comp = (int) (new_end - dist_ptr);
+  printf("Number of components is: %d\n", num_comp);
 
   return 0;
 }

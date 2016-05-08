@@ -18,7 +18,7 @@ AFRL Contract #FA8750-13-C-0002.
 
 This material is based upon work supported by the Defense Advanced
 Research Projects Agency (DARPA) under Contract No. D14PC00029.
- */
+*/
 
 #ifndef PR_H_
 #define PR_H_
@@ -34,7 +34,7 @@ struct pagerank
 {
 
   typedef float DataType;
-  typedef DataType MiscType;
+  typedef int MiscType;
   typedef float GatherType;
   typedef int VertexId;
   typedef int SizeT;
@@ -57,7 +57,6 @@ struct pagerank
             nodes(0), edges(0)
     {
     }
-    virtual void Deallocate(){}
   };
 
   struct EdgeType
@@ -69,7 +68,6 @@ struct pagerank
         nodes(0), edges(0)
     {
     }
-    virtual void Deallocate(){}
   };
 
   static void Initialize(const int directed, const int nodes, const int edges, int num_srcs,
@@ -356,7 +354,7 @@ struct pagerank
      */
     void operator()(const bool changed, const int iteration,
         const int vertex_id, const int neighbor_id_in, const int edge_id,
-        VertexType& vertex_list, EdgeType& edge_list, int& frontier, MiscType& misc_value)
+        VertexType& vertex_list, EdgeType& edge_list, int& frontier, int& misc_value)
     {
 //      printf("expand: vertex_id=%d, neighbor_id_in=%d\n", vertex_id, neighbor_id_in);
       if (changed)
@@ -389,7 +387,7 @@ struct pagerank
      * function.
      */
     void operator()(const int iteration, int &vertex_id,
-        VertexType &vertex_list, EdgeType &edge_list, GatherType* gather_tmp, MiscType& misc_value)
+        VertexType &vertex_list, EdgeType &edge_list, GatherType* gather_tmp, int& misc_value)
     {
 
       /**
